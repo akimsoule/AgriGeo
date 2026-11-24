@@ -10,33 +10,73 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FluxRouteImport } from './routes/flux'
+import { Route as RisquesRouteImport } from './routes/risques'
+import { Route as MatiereIdRouteImport } from './routes/matiere.$id'
+import { Route as PaysCodeRouteImport } from './routes/pays.$code'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FluxRoute = FluxRouteImport.update({
+  id: '/flux',
+  path: '/flux',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RisquesRoute = RisquesRouteImport.update({
+  id: '/risques',
+  path: '/risques',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatiereIdRoute = MatiereIdRouteImport.update({
+  id: '/matiere/$id',
+  path: '/matiere/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaysCodeRoute = PaysCodeRouteImport.update({
+  id: '/pays/$code',
+  path: '/pays/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/flux': typeof FluxRoute
+  '/risques': typeof RisquesRoute
+  '/matiere/$id': typeof MatiereIdRoute
+  '/pays/$code': typeof PaysCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/flux': typeof FluxRoute
+  '/risques': typeof RisquesRoute
+  '/matiere/$id': typeof MatiereIdRoute
+  '/pays/$code': typeof PaysCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/flux': typeof FluxRoute
+  '/risques': typeof RisquesRoute
+  '/matiere/$id': typeof MatiereIdRoute
+  '/pays/$code': typeof PaysCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/flux' | '/risques' | '/matiere/$id' | '/pays/$code'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/flux' | '/risques' | '/matiere/$id' | '/pays/$code'
+  id: '__root__' | '/' | '/flux' | '/risques' | '/matiere/$id' | '/pays/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FluxRoute: typeof FluxRoute
+  RisquesRoute: typeof RisquesRoute
+  MatiereIdRoute: typeof MatiereIdRoute
+  PaysCodeRoute: typeof PaysCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +88,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/flux': {
+      id: '/flux'
+      path: '/flux'
+      fullPath: '/flux'
+      preLoaderRoute: typeof FluxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/risques': {
+      id: '/risques'
+      path: '/risques'
+      fullPath: '/risques'
+      preLoaderRoute: typeof RisquesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matiere/$id': {
+      id: '/matiere/$id'
+      path: '/matiere/$id'
+      fullPath: '/matiere/$id'
+      preLoaderRoute: typeof MatiereIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pays/$code': {
+      id: '/pays/$code'
+      path: '/pays/$code'
+      fullPath: '/pays/$code'
+      preLoaderRoute: typeof PaysCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FluxRoute: FluxRoute,
+  RisquesRoute: RisquesRoute,
+  MatiereIdRoute: MatiereIdRoute,
+  PaysCodeRoute: PaysCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

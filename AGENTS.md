@@ -28,3 +28,10 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Application architecture
+- Keep TanStack Router file routes for all pages; the template requires this router rather than React Router.
+- Keep illustrative datasets in `src/data` and expose asynchronous reads in `src/lib/api.ts`; this prototype must not require a backend.
+- Use React Query route loaders for local API reads so loading and error boundaries apply consistently.
+- Use react-simple-maps with local world-atlas topology for geographic views and Recharts for quantitative charts; both share browser-safe domain data.
+- Define presentation tokens and reusable visual rules in the global stylesheet, with a shared application shell in the root route.
