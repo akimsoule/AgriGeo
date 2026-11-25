@@ -19,7 +19,7 @@ Backend : Netlify Functions (TypeScript) + Netlify Blobs.
 
 ## Déploiement (Netlify)
 
-`netlify.toml` configure le build (`npm run build` → `dist`), les fonctions et la redirection SPA.
+`netlify.toml` configure le build, les fonctions et la redirection SPA. **Chaque déploiement télécharge d'abord les derniers prix** (`npm run ingest:prices`) puis construit `dist` ; si le téléchargement échoue, le build continue avec les prix déjà dans le dépôt (voir les logs de build).
 
 | Fonction | Rôle |
 |---|---|

@@ -1,5 +1,7 @@
 [build]
-  command = "npm run build"
+  # À chaque déploiement : télécharge les derniers prix (Pink Sheet) dans src/data/generated/prices.json,
+  # puis construit. Si le téléchargement échoue, le build continue avec les prix déjà dans le dépôt.
+  command = "(npm run ingest:prices || echo 'Prix non mis à jour : jeu embarqué conservé') && npm run build"
   publish = "dist"
   functions = "netlify/functions"
 
