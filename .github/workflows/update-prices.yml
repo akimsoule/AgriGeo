@@ -1,0 +1,27 @@
+name: Mise à jour des prix (Banque mondiale)
+
+on:
+  schedule:
+    - cron: "17 6 5 * *" # le 5 de chaque mois (le Pink Sheet sort en début de mois)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run ingest:prices
+      - run: bun run test
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: data/update-prices
+          commit-message: "data: mise à jour des prix (World Bank Pink Sheet)"
+          title: "data: mise à jour des prix (World Bank Pink Sheet)"
+          body: "Généré par `bun run ingest:prices`. Vérifier le dernier mois et les variations avant de fusionner."
+          add-paths: src/data/generated/prices.json

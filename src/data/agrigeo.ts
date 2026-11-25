@@ -1,3 +1,6 @@
+import generatedPrices from "./generated/prices.json";
+import type { PricesFile } from "./prices-types";
+
 export type Country = {
   code: string;
   numeric: string;
@@ -199,30 +202,62 @@ const seeds: Seed[] = [
 export function makePriceSeries(price: number, change: number, phase: number) {
   const priorYear = price / (1 + change / 100);
   return Array.from({ length: 60 }, (_, i) => {
-    const value = i <= 47
-      ? priorYear * (0.72 + i / 47 * 0.28 + Math.sin((i - 47) * 0.48 + phase) * 0.06 * (47 - i) / 47)
-      : priorYear + (price - priorYear) * (i - 47) / 12 + Math.sin((i - 47) / 12 * Math.PI) * price * 0.025;
-    return { date: `${2020 + Math.floor(i / 12)}-${String(i % 12 + 1).padStart(2, '0')}-01`, value: Math.round(value * 100) / 100 };
+    const value =
+      i <= 47
+        ? priorYear *
+          (0.72 + (i / 47) * 0.28 + (Math.sin((i - 47) * 0.48 + phase) * 0.06 * (47 - i)) / 47)
+        : priorYear +
+          ((price - priorYear) * (i - 47)) / 12 +
+          Math.sin(((i - 47) / 12) * Math.PI) * price * 0.025;
+    return {
+      date: `${2020 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, "0")}-01`,
+      value: Math.round(value * 100) / 100,
+    };
   });
 }
+const generated = generatedPrices as unknown as PricesFile;
+/** Métadonnées de la source de prix réelle, ou null tant que l'ingestion n'a pas été lancée. */
+export const priceMeta = generated.meta;
+
+/** Remplace la série illustrative par la série réelle (60 derniers mois) quand elle existe. */
+function realPrices(id: string) {
+  const points = generated.meta ? generated.series[id]?.points.slice(-60) : undefined;
+  if (!points || points.length !== 60) return null;
+  const last = points[59]!.value;
+  const prior = points[47]!.value;
+  return {
+    prices: points,
+    price: Math.round(last),
+    change: Math.round((last / prior - 1) * 1000) / 10,
+  };
+}
+
 export const commodities: Commodity[] = seeds.map(
-  ([id, name, icon, risk, change, price, components, exp, shares, imp, importShares], index) => ({
-    id,
-    name,
-    icon,
-    risk,
-    change,
-    price,
-    unit: "USD / tonne",
-    components,
-    exporters: exp.map((code, i) => ({ code, share: shares[i] ?? 0 })),
-    importers: imp.map((code, i) => ({ code, share: importShares[i] ?? 0 })),
-    prices: makePriceSeries(price, change, index),
-    concentration: Array.from({ length: 10 }, (_, i) => ({
-      year: 2015 + i,
-      value: Math.round((shares[0] ?? 0) + (shares[1] ?? 0) - 8 + i * 0.9),
-    })),
-  }),
+  (
+    [id, name, icon, risk, seedChange, seedPrice, components, exp, shares, imp, importShares],
+    index,
+  ) => {
+    const real = realPrices(id);
+    const price = real?.price ?? seedPrice;
+    const change = real?.change ?? seedChange;
+    return {
+      id,
+      name,
+      icon,
+      risk,
+      change,
+      price,
+      unit: "USD / tonne",
+      components,
+      exporters: exp.map((code, i) => ({ code, share: shares[i] ?? 0 })),
+      importers: imp.map((code, i) => ({ code, share: importShares[i] ?? 0 })),
+      prices: real?.prices ?? makePriceSeries(price, change, index),
+      concentration: Array.from({ length: 10 }, (_, i) => ({
+        year: 2015 + i,
+        value: Math.round((shares[0] ?? 0) + (shares[1] ?? 0) - 8 + i * 0.9),
+      })),
+    };
+  },
 );
 export type Severity = "Élevée" | "Modérée" | "Faible";
 export type Alert = {

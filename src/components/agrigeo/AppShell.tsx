@@ -24,7 +24,10 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { commodities, countries } from "@/data/agrigeo";
+import { commodities, countries, priceMeta } from "@/data/agrigeo";
+
+const formatMonth = (iso: string) =>
+  new Date(iso).toLocaleDateString("fr-FR", { month: "short", year: "numeric", timeZone: "UTC" });
 import { CommodityIcon } from "./common";
 const nav = [
   { to: "/", label: "Vue d’ensemble", icon: LayoutDashboard },
@@ -155,7 +158,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="topbar-actions">
             <span className="data-status">
-              <span className="status-dot" /> Données au 20 déc. 2024
+              <span className="status-dot" />{" "}
+              {priceMeta
+                ? `Prix au ${formatMonth(priceMeta.lastMonth)}`
+                : "Données au 20 déc. 2024"}
             </span>
             <span className="topbar-separator" />
             <Button
@@ -172,8 +178,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="main-content">{children}</main>
         <footer className="app-footer">
           <span>
-            Données illustratives du prototype. Sources visées : FAOSTAT, UN Comtrade, CEPII BACI,
-            Banque mondiale, GDELT.
+            {priceMeta
+              ? `Prix : ${priceMeta.source}, récupérés le ${new Date(priceMeta.retrievedAt).toLocaleDateString("fr-FR")}. Flux, parts, scores et alertes : données illustratives.`
+              : "Données illustratives du prototype. Sources visées : FAOSTAT, UN Comtrade, CEPII BACI, Banque mondiale, GDELT."}
           </span>
           <span>AgriGeo © 2024</span>
         </footer>
