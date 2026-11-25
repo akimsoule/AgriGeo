@@ -77,20 +77,22 @@ export function CountryPanel({
 }
 function FlowArcs({ commodity }: { commodity: Commodity }) {
   const { projection } = useMapContext();
-  const flows = commodity.exporters
-    .flatMap((e) =>
-      commodity.importers
-        .filter((i) => i.code !== e.code)
-        .map((i) => ({ from: e.code, to: i.code, weight: e.share * i.share })),
-    )
-    .sort((a, b) => b.weight - a.weight)
-    .slice(0, 10);
+  const flows =
+    commodity.flows?.slice(0, 10).map((f) => ({ from: f.from, to: f.to, weight: f.value })) ??
+    commodity.exporters
+      .flatMap((e) =>
+        commodity.importers
+          .filter((i) => i.code !== e.code)
+          .map((i) => ({ from: e.code, to: i.code, weight: e.share * i.share })),
+      )
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, 10);
   return (
     <g className="flow-arcs">
       {flows.map((f, i) => {
         const from = findCountry(f.from);
         const to = findCountry(f.to);
-        if (!from || !to) return null;
+        if (!from?.coordinates || !to?.coordinates) return null;
         const a = projection(from.coordinates);
         const b = projection(to.coordinates);
         if (!a || !b) return null;
@@ -237,7 +239,7 @@ export function FlowMap({
             {flows && <FlowArcs commodity={commodity} />}{" "}
             {shares.slice(0, 3).map((s) => {
               const c = findCountry(s.code);
-              return c ? (
+              return c?.coordinates ? (
                 <Marker key={s.code} coordinates={c.coordinates}>
                   <circle r={3.5} className="map-dot" />
                 </Marker>

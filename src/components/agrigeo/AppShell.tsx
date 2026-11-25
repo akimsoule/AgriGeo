@@ -24,10 +24,31 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { commodities, countries, priceMeta } from "@/data/agrigeo";
+import { commodities, countries, flowsMeta, priceMeta } from "@/data/agrigeo";
 
 const formatMonth = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", { month: "short", year: "numeric", timeZone: "UTC" });
+
+const provenance = (() => {
+  const real = [
+    priceMeta
+      ? `Prix : Banque mondiale, Pink Sheet (jusqu’à ${formatMonth(priceMeta.lastMonth)})`
+      : null,
+    flowsMeta
+      ? `Flux et parts : CEPII BACI ${flowsMeta.hsRevision} v${flowsMeta.version} (${flowsMeta.firstYear}–${flowsMeta.lastYear})`
+      : null,
+  ].filter(Boolean);
+  if (!real.length) {
+    return "Données illustratives du prototype. Sources visées : FAOSTAT, UN Comtrade, CEPII BACI, Banque mondiale, GDELT.";
+  }
+  const illustrative = [
+    priceMeta ? null : "prix",
+    flowsMeta ? null : "flux et parts",
+    "scores de risque",
+    "alertes",
+  ].filter(Boolean);
+  return `${real.join(" · ")}. Données illustratives : ${illustrative.join(", ")}.`;
+})();
 import { CommodityIcon } from "./common";
 const nav = [
   { to: "/", label: "Vue d’ensemble", icon: LayoutDashboard },
@@ -161,7 +182,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span className="status-dot" />{" "}
               {priceMeta
                 ? `Prix au ${formatMonth(priceMeta.lastMonth)}`
-                : "Données au 20 déc. 2024"}
+                : flowsMeta
+                  ? `Flux jusqu’en ${flowsMeta.lastYear}`
+                  : "Données au 20 déc. 2024"}
             </span>
             <span className="topbar-separator" />
             <Button
@@ -177,11 +200,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="main-content">{children}</main>
         <footer className="app-footer">
-          <span>
-            {priceMeta
-              ? `Prix : ${priceMeta.source}, récupérés le ${new Date(priceMeta.retrievedAt).toLocaleDateString("fr-FR")}. Flux, parts, scores et alertes : données illustratives.`
-              : "Données illustratives du prototype. Sources visées : FAOSTAT, UN Comtrade, CEPII BACI, Banque mondiale, GDELT."}
-          </span>
+          <span>{provenance}</span>
           <span>AgriGeo © 2024</span>
         </footer>
       </div>

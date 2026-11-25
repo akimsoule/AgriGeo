@@ -20,6 +20,7 @@ Déploiement : Cloudflare par défaut ; autre cible avec `NITRO_PRESET` (ex. `NI
 | Donnée | Statut |
 |---|---|
 | Prix mensuels (Banque mondiale, Pink Sheet) | Réel après `npm run ingest:prices` (voir `scripts/ingest/README.md`) |
-| Flux, parts d'export/import, scores de risque, alertes | Illustratif pour l'instant |
+| Flux, parts d'export/import (CEPII BACI) | Réel après `npm run ingest:flows` (voir `scripts/ingest/README.md`) |
+| Scores de risque, alertes, vulnérabilité des pays | Illustratif pour l'instant |
 
 Sources visées : FAOSTAT, UN Comtrade, CEPII BACI, Banque mondiale, GDELT.

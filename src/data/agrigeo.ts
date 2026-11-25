@@ -1,4 +1,6 @@
 import generatedPrices from "./generated/prices.json";
+import generatedFlows from "./generated/flows.json";
+import type { FlowsFile, YearFlows } from "./flows-types";
 import type { PricesFile } from "./prices-types";
 
 export type Country = {
@@ -6,10 +8,12 @@ export type Country = {
   numeric: string;
   name: string;
   flag: string;
-  coordinates: [number, number];
-  vulnerability: number;
+  /** Centre du pays sur la carte ; null si inconnu (pas de flèches ni de marqueur). */
+  coordinates: [number, number] | null;
+  /** Indice illustratif ; null pour les pays issus des données réelles (pas encore calculé). */
+  vulnerability: number | null;
 };
-export const countries: Country[] = [
+const baseCountries: Country[] = [
   ["CI", "384", "Côte d’Ivoire", "🇨🇮", -5, 7.5, 34],
   ["GH", "288", "Ghana", "🇬🇭", -1, 7.9, 42],
   ["BR", "076", "Brésil", "🇧🇷", -51, -12, 18],
@@ -52,6 +56,28 @@ export const countries: Country[] = [
   coordinates: [Number(lon), Number(lat)],
   vulnerability: Number(vulnerability),
 }));
+
+const flowsData = generatedFlows as unknown as FlowsFile;
+/** Métadonnées de la source de flux réelle, ou null tant que l'ingestion n'a pas été lancée. */
+export const flowsMeta = flowsData.meta;
+const flagOf = (iso2: string) =>
+  String.fromCodePoint(...[...iso2].map((ch) => 127397 + ch.charCodeAt(0)));
+/** Pays curatés + pays rencontrés dans les flux réels (nom, drapeau et centre calculés). */
+export const countries: Country[] = [
+  ...baseCountries,
+  ...(flowsMeta
+    ? Object.entries(flowsData.countries)
+        .filter(([code]) => !baseCountries.some((c) => c.code === code))
+        .map(([code, c]) => ({
+          code,
+          numeric: c.numeric,
+          name: c.name,
+          flag: flagOf(code),
+          coordinates: c.coordinates,
+          vulnerability: null,
+        }))
+    : []),
+];
 export type Share = { code: string; share: number };
 export type Commodity = {
   id: string;
@@ -66,6 +92,10 @@ export type Commodity = {
   importers: Share[];
   prices: { date: string; value: number }[];
   concentration: { year: number; value: number }[];
+  /** Flux réels par année (BACI), absents tant que l'ingestion n'a pas été lancée. */
+  byYear?: Record<number, YearFlows>;
+  /** Plus gros flux bilatéraux de la dernière année. */
+  flows?: { from: string; to: string; value: number }[];
 };
 type Seed = [
   string,
@@ -240,6 +270,10 @@ export const commodities: Commodity[] = seeds.map(
     const real = realPrices(id);
     const price = real?.price ?? seedPrice;
     const change = real?.change ?? seedChange;
+    const years = flowsMeta ? flowsData.commodities[id]?.years : undefined;
+    const lastFlows = years && flowsMeta ? years[String(flowsMeta.lastYear)] : undefined;
+    const toShares = (list: YearFlows["exporters"]) =>
+      list.slice(0, 8).map((p) => ({ code: p.code, share: p.share }));
     return {
       id,
       name,
@@ -249,13 +283,30 @@ export const commodities: Commodity[] = seeds.map(
       price,
       unit: "USD / tonne",
       components,
-      exporters: exp.map((code, i) => ({ code, share: shares[i] ?? 0 })),
-      importers: imp.map((code, i) => ({ code, share: importShares[i] ?? 0 })),
+      exporters: lastFlows
+        ? toShares(lastFlows.exporters)
+        : exp.map((code, i) => ({ code, share: shares[i] ?? 0 })),
+      importers: lastFlows
+        ? toShares(lastFlows.importers)
+        : imp.map((code, i) => ({ code, share: importShares[i] ?? 0 })),
       prices: real?.prices ?? makePriceSeries(price, change, index),
-      concentration: Array.from({ length: 10 }, (_, i) => ({
-        year: 2015 + i,
-        value: Math.round((shares[0] ?? 0) + (shares[1] ?? 0) - 8 + i * 0.9),
-      })),
+      concentration: years
+        ? Object.entries(years)
+            .map(([year, y]) => ({
+              year: Number(year),
+              value: Math.round((y.exporters[0]?.share ?? 0) + (y.exporters[1]?.share ?? 0)),
+            }))
+            .sort((a, b) => a.year - b.year)
+        : Array.from({ length: 10 }, (_, i) => ({
+            year: 2015 + i,
+            value: Math.round((shares[0] ?? 0) + (shares[1] ?? 0) - 8 + i * 0.9),
+          })),
+      ...(years && lastFlows
+        ? {
+            byYear: Object.fromEntries(Object.entries(years).map(([y, v]) => [Number(y), v])),
+            flows: lastFlows.flows,
+          }
+        : {}),
     };
   },
 );
@@ -378,6 +429,13 @@ export function tradeValue(
   mode: "export" | "import",
   year: number,
 ) {
+  if (commodity.byYear) {
+    const available = Object.keys(commodity.byYear).map(Number);
+    const nearest = available.reduce((a, b) => (Math.abs(b - year) < Math.abs(a - year) ? b : a));
+    const y = commodity.byYear[nearest];
+    const party = (mode === "export" ? y?.exporters : y?.importers)?.find((p) => p.code === code);
+    return { share: party?.share ?? 0, value: party?.value ?? 0 };
+  }
   const share =
     (mode === "export" ? commodity.exporters : commodity.importers).find((s) => s.code === code)
       ?.share ?? 0;

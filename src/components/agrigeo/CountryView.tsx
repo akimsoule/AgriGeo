@@ -49,16 +49,23 @@ export function CountryView({ code }: { code: string }) {
       <div className="country-overview">
         <div>
           <p className="eyebrow">VULNÉRABILITÉ ALIMENTAIRE</p>
-          <div className="vulnerability-value">
-            {country.vulnerability}
-            <small>/ 100</small>
-            <RiskBadge score={country.vulnerability} />
-          </div>
+          {country.vulnerability === null ? (
+            <div className="vulnerability-value">
+              n.d.
+              <small>indice non calculé</small>
+            </div>
+          ) : (
+            <div className="vulnerability-value">
+              {country.vulnerability}
+              <small>/ 100</small>
+              <RiskBadge score={country.vulnerability} />
+            </div>
+          )}
           <p className="text-sm text-muted-foreground">
             Dépendance aux importations et exposition aux ruptures d’approvisionnement.
           </p>
           <div className="vulnerability-track">
-            <span style={{ width: `${country.vulnerability}%` }} />
+            <span style={{ width: `${country.vulnerability ?? 0}%` }} />
           </div>
         </div>
         <div className="country-commodities">
@@ -163,18 +170,20 @@ export function CountryView({ code }: { code: string }) {
             des débouchés diversifiés, tout en l’exposant aux variations des prix et aux décisions
             de ses partenaires.
           </p>
-          <p>
-            Avec un indice de vulnérabilité de {country.vulnerability} sur 100, le pays présente une
-            exposition{" "}
-            {country.vulnerability >= 65
-              ? "importante"
-              : country.vulnerability >= 35
-                ? "modérée"
-                : "limitée"}{" "}
-            aux ruptures d’approvisionnement. Les capacités de stockage, la diversification des
-            partenaires et la production nationale sont les principaux leviers de sécurité
-            alimentaire.
-          </p>
+          {country.vulnerability !== null && (
+            <p>
+              Avec un indice de vulnérabilité de {country.vulnerability} sur 100, le pays présente
+              une exposition{" "}
+              {country.vulnerability >= 65
+                ? "importante"
+                : country.vulnerability >= 35
+                  ? "modérée"
+                  : "limitée"}{" "}
+              aux ruptures d’approvisionnement. Les capacités de stockage, la diversification des
+              partenaires et la production nationale sont les principaux leviers de sécurité
+              alimentaire.
+            </p>
+          )}
           <p>
             Dans ce scénario, les échanges de{" "}
             {relevant
