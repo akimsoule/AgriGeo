@@ -1,37 +1,12 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
+# AgriGeo — notes pour les agents
 
-## What Lovable manages
-
-Rules outside this block are the project's own. Change the pieces below in
-Lovable, not by hand. With the [Lovable MCP](https://mcp.lovable.dev)
-connected, `send_message` asks Lovable to do it; otherwise ask the user to
-use the editor.
-
-- **Database.** Do not add or edit `supabase/migrations/` or `drizzle/`.
-  Ask Lovable to change the schema.
-- **Generated files.** Do not edit a file whose header says it is automatically
-  generated.
-- **AI gateway.** Keep model calls on Lovable's gateway, and keep
-  `LOVABLE_API_KEY` out of browser code.
-- **Connectors.** Lovable provides native connectors. `list_connectors` shows
-  which are enabled; `add_connector` only returns the dashboard link. When a
-  connector is enabled, calls go through the connector gateway and need
-  `LOVABLE_API_KEY`. When Lovable does not provide one, users can bring their
-  own key and store it in Secrets.
-- **Secrets.** Lovable manages them. Do not put secret values in the repo.
-<!-- LOVABLE:END -->
+- Gestionnaire de paquets : **npm** (`npm install`, `npm run dev|build|test|lint`). Pas de bun.
+- Ne pas modifier à la main `src/routeTree.gen.ts` (généré par TanStack Router).
+- Les fichiers de `src/data/generated/` sont produits par `npm run ingest:*` ; ne pas les éditer à la main.
 
 ## Application architecture
-- Keep TanStack Router file routes for all pages; the template requires this router rather than React Router.
-- Keep illustrative datasets in `src/data` and expose asynchronous reads in `src/lib/api.ts`; this prototype must not require a backend.
+- Keep TanStack Router file routes for all pages.
+- Keep datasets in `src/data` (generated files in `src/data/generated`, written by `scripts/ingest`) and expose asynchronous reads in `src/lib/api.ts`; the app must not require a backend.
 - Use React Query route loaders for local API reads so loading and error boundaries apply consistently.
 - Use react-simple-maps with local world-atlas topology for geographic views and Recharts for quantitative charts; both share browser-safe domain data.
 - Define presentation tokens and reusable visual rules in the global stylesheet, with a shared application shell in the root route.

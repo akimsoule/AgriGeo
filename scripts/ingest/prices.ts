@@ -2,9 +2,9 @@
  * Ingestion des prix mensuels — World Bank Commodity Price Data ("Pink Sheet").
  *
  * Usage :
- *   bun run ingest:prices                      # découvre le lien actuel sur worldbank.org
- *   bun run ingest:prices -- --url <lien.xlsx>  # lien explicite
- *   bun run ingest:prices -- --file ./x.xlsx    # fichier local (tests, hors ligne)
+ *   npm run ingest:prices                      # découvre le lien actuel sur worldbank.org
+ *   npm run ingest:prices -- --url <lien.xlsx>  # lien explicite
+ *   npm run ingest:prices -- --file ./x.xlsx    # fichier local (tests, hors ligne)
  *
  * Écrit src/data/generated/prices.json (prix en USD / tonne, 60 derniers mois utilisés par l'app,
  * historique complet conservé depuis 2000).

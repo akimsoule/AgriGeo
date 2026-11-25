@@ -3,9 +3,9 @@
 ## Prix — World Bank Pink Sheet
 
 ```sh
-bun run ingest:prices                       # trouve le lien du mois sur worldbank.org
-bun run ingest:prices -- --url <lien.xlsx>  # lien explicite (« Monthly prices (XLS) »)
-bun run ingest:prices -- --file ./x.xlsx    # fichier local
+npm run ingest:prices                       # trouve le lien du mois sur worldbank.org
+npm run ingest:prices -- --url <lien.xlsx>  # lien explicite (« Monthly prices (XLS) »)
+npm run ingest:prices -- --file ./x.xlsx    # fichier local
 ```
 
 Écrit `src/data/generated/prices.json` : prix mensuels nominaux convertis en USD / tonne pour les 9 matières

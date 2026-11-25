@@ -14,14 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run ingest:prices
-      - run: bun run test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run ingest:prices
+      - run: npm test
       - uses: peter-evans/create-pull-request@v7
         with:
           branch: data/update-prices
           commit-message: "data: mise à jour des prix (World Bank Pink Sheet)"
           title: "data: mise à jour des prix (World Bank Pink Sheet)"
-          body: "Généré par `bun run ingest:prices`. Vérifier le dernier mois et les variations avant de fusionner."
+          body: "Généré par `npm run ingest:prices`. Vérifier le dernier mois et les variations avant de fusionner."
           add-paths: src/data/generated/prices.json

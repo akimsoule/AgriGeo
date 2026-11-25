@@ -1,24 +1,25 @@
-# Pixel Perfect
+# AgriGeo
 
-Implement exactly the screenshot and nothing else
+Observatoire de la géopolitique des matières premières alimentaires : carte des flux commerciaux,
+prix et alertes de risque, fiches matières et pays (cacao, café, sucre, huiles, blé, maïs, riz, soja).
 
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/3e016ca3-73d8-4adf-9353-72513f4a97de).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Démarrer
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+npm install
+npm run dev      # http://localhost:8080
+npm test
+npm run build
 ```
+
+Pile : TanStack Start (React 19) · Tailwind 4 · shadcn/ui · react-simple-maps · Recharts · Vitest.
+Déploiement : Cloudflare par défaut ; autre cible avec `NITRO_PRESET` (ex. `NITRO_PRESET=netlify npm run build`).
+
+## Données
+
+| Donnée | Statut |
+|---|---|
+| Prix mensuels (Banque mondiale, Pink Sheet) | Réel après `npm run ingest:prices` (voir `scripts/ingest/README.md`) |
+| Flux, parts d'export/import, scores de risque, alertes | Illustratif pour l'instant |
+
+Sources visées : FAOSTAT, UN Comtrade, CEPII BACI, Banque mondiale, GDELT.
