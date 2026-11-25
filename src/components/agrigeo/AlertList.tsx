@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -106,7 +106,7 @@ function AlertRow({ alert: a, open, toggle }: { alert: Alert; open: boolean; tog
       <tr>
         <td className="date-cell">{formatDate(a.date)}</td>
         <td>
-          <Link to="/pays/$code" params={{ code: a.code }} className="country-name">
+          <Link to={`/pays/${a.code}`} className="country-name">
             <span>{country?.flag}</span>
             {country?.name}
           </Link>
@@ -115,7 +115,7 @@ function AlertRow({ alert: a, open, toggle }: { alert: Alert; open: boolean; tog
         <td>
           <div className="flex flex-wrap gap-1.5">
             {a.commodities.map((id) => (
-              <Link className="commodity-tag" to="/matiere/$id" params={{ id }} key={id}>
+              <Link className="commodity-tag" to={`/matiere/${id}`} key={id}>
                 {findCommodity(id)?.name}
               </Link>
             ))}

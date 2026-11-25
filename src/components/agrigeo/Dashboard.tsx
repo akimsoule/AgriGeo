@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
@@ -119,8 +119,7 @@ export function Dashboard() {
               seulement <strong>2 pays.</strong>
             </p>
             <Link
-              to="/matiere/$id"
-              params={{ id: (selected ?? cocoa).id }}
+              to={`/matiere/${(selected ?? cocoa).id}`}
               aria-label="Voir l’analyse de concentration"
             >
               <ArrowRight className="size-4" />
@@ -132,7 +131,7 @@ export function Dashboard() {
           <p className="section-subtitle">Classement par score de risque</p>
           <div className="ranking-list">
             {ranked.map((c, i) => (
-              <Link to="/matiere/$id" params={{ id: c.id }} className="ranking-row" key={c.id}>
+              <Link to={`/matiere/${c.id}`} className="ranking-row" key={c.id}>
                 <span className="rank-index">{String(i + 1).padStart(2, "0")}</span>
                 <CommodityIcon icon={c.icon} className="size-4" />
                 <span className="ranking-name">{c.name}</span>

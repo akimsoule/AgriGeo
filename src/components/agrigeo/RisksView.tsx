@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowDownUp, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -131,7 +131,7 @@ export function RisksView() {
               {sorted.map((c) => (
                 <tr key={c.id}>
                   <td>
-                    <Link className="country-name" to="/matiere/$id" params={{ id: c.id }}>
+                    <Link className="country-name" to={`/matiere/${c.id}`}>
                       <CommodityIcon icon={c.icon} />
                       {c.name}
                     </Link>
@@ -151,7 +151,7 @@ export function RisksView() {
                   </td>
                   <td>
                     <Button asChild variant="ghost" size="icon">
-                      <Link to="/matiere/$id" params={{ id: c.id }} aria-label={`Voir ${c.name}`}>
+                      <Link to={`/matiere/${c.id}`} aria-label={`Voir ${c.name}`}>
                         <ArrowUpRight />
                       </Link>
                     </Button>

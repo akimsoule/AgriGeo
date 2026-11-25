@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   Area,
@@ -130,7 +130,7 @@ export function CommodityView({ id }: { id: string }) {
             </div>
             <div className="donut-legend">
               {c.exporters.slice(0, 5).map((e, i) => (
-                <Link to="/pays/$code" params={{ code: e.code }} key={e.code}>
+                <Link to={`/pays/${e.code}`} key={e.code}>
                   <i className={`series-${i % 6}`} />
                   <span>{findCountry(e.code)?.name}</span>
                   <strong>{e.share} %</strong>
@@ -234,7 +234,7 @@ export function CommodityView({ id }: { id: string }) {
         <SectionTitle title="Pays clés de la filière" />
         <div className="key-countries">
           {c.exporters.slice(0, 4).map((e) => (
-            <Link key={e.code} to="/pays/$code" params={{ code: e.code }}>
+            <Link key={e.code} to={`/pays/${e.code}`}>
               <span className="text-2xl">{findCountry(e.code)?.flag}</span>
               <div>
                 <strong>{findCountry(e.code)?.name}</strong>

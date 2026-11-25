@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowUpRight, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ export function CountryView({ code }: { code: string }) {
           <div className="flex flex-wrap gap-2">
             {relevant.map((c) => (
               <Button asChild variant="outline" key={c.id}>
-                <Link to="/matiere/$id" params={{ id: c.id }}>
+                <Link to={`/matiere/${c.id}`}>
                   <CommodityIcon icon={c.icon} />
                   {c.name}
                 </Link>
@@ -106,7 +106,7 @@ export function CountryView({ code }: { code: string }) {
                       return (
                         <tr key={c.id}>
                           <td>
-                            <Link className="country-name" to="/matiere/$id" params={{ id: c.id }}>
+                            <Link className="country-name" to={`/matiere/${c.id}`}>
                               <CommodityIcon icon={c.icon} />
                               {c.name}
                             </Link>
@@ -142,7 +142,7 @@ export function CountryView({ code }: { code: string }) {
               {sortedPartners.map(([partner, share]) => (
                 <tr key={partner}>
                   <td>
-                    <Link className="country-name" to="/pays/$code" params={{ code: partner }}>
+                    <Link className="country-name" to={`/pays/${partner}`}>
                       {findCountry(partner)?.flag} {findCountry(partner)?.name}
                     </Link>
                   </td>

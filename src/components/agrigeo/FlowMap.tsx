@@ -8,7 +8,7 @@ import {
   Marker,
 } from "react-simple-maps";
 import type { GeoJsonObject } from "geojson";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { ArrowRight, Minus, Plus, RotateCcw, X, Globe2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,7 +68,7 @@ export function CountryPanel({
         </div>
       ))}
       <Button asChild className="w-full mt-6">
-        <Link to="/pays/$code" params={{ code: country.code }}>
+        <Link to={`/pays/${country.code}`}>
           Voir la fiche pays <ArrowRight />
         </Link>
       </Button>

@@ -57,27 +57,26 @@ const baseCountries: Country[] = [
   vulnerability: Number(vulnerability),
 }));
 
-const flowsData = generatedFlows as unknown as FlowsFile;
-/** Métadonnées de la source de flux réelle, ou null tant que l'ingestion n'a pas été lancée. */
-export const flowsMeta = flowsData.meta;
 const flagOf = (iso2: string) =>
   String.fromCodePoint(...[...iso2].map((ch) => 127397 + ch.charCodeAt(0)));
 /** Pays curatés + pays rencontrés dans les flux réels (nom, drapeau et centre calculés). */
-export const countries: Country[] = [
-  ...baseCountries,
-  ...(flowsMeta
-    ? Object.entries(flowsData.countries)
-        .filter(([code]) => !baseCountries.some((c) => c.code === code))
-        .map(([code, c]) => ({
-          code,
-          numeric: c.numeric,
-          name: c.name,
-          flag: flagOf(code),
-          coordinates: c.coordinates,
-          vulnerability: null,
-        }))
-    : []),
-];
+function buildCountries(flows: FlowsFile): Country[] {
+  return [
+    ...baseCountries,
+    ...(flows.meta
+      ? Object.entries(flows.countries)
+          .filter(([code]) => !baseCountries.some((c) => c.code === code))
+          .map(([code, c]) => ({
+            code,
+            numeric: c.numeric,
+            name: c.name,
+            flag: flagOf(code),
+            coordinates: c.coordinates,
+            vulnerability: null,
+          }))
+      : []),
+  ];
+}
 export type Share = { code: string; share: number };
 export type Commodity = {
   id: string;
@@ -245,13 +244,9 @@ export function makePriceSeries(price: number, change: number, phase: number) {
     };
   });
 }
-const generated = generatedPrices as unknown as PricesFile;
-/** Métadonnées de la source de prix réelle, ou null tant que l'ingestion n'a pas été lancée. */
-export const priceMeta = generated.meta;
-
 /** Remplace la série illustrative par la série réelle (60 derniers mois) quand elle existe. */
-function realPrices(id: string) {
-  const points = generated.meta ? generated.series[id]?.points.slice(-60) : undefined;
+function realPrices(prices: PricesFile, id: string) {
+  const points = prices.meta ? prices.series[id]?.points.slice(-60) : undefined;
   if (!points || points.length !== 60) return null;
   const last = points[59]!.value;
   const prior = points[47]!.value;
@@ -262,54 +257,56 @@ function realPrices(id: string) {
   };
 }
 
-export const commodities: Commodity[] = seeds.map(
-  (
-    [id, name, icon, risk, seedChange, seedPrice, components, exp, shares, imp, importShares],
-    index,
-  ) => {
-    const real = realPrices(id);
-    const price = real?.price ?? seedPrice;
-    const change = real?.change ?? seedChange;
-    const years = flowsMeta ? flowsData.commodities[id]?.years : undefined;
-    const lastFlows = years && flowsMeta ? years[String(flowsMeta.lastYear)] : undefined;
-    const toShares = (list: YearFlows["exporters"]) =>
-      list.slice(0, 8).map((p) => ({ code: p.code, share: p.share }));
-    return {
-      id,
-      name,
-      icon,
-      risk,
-      change,
-      price,
-      unit: "USD / tonne",
-      components,
-      exporters: lastFlows
-        ? toShares(lastFlows.exporters)
-        : exp.map((code, i) => ({ code, share: shares[i] ?? 0 })),
-      importers: lastFlows
-        ? toShares(lastFlows.importers)
-        : imp.map((code, i) => ({ code, share: importShares[i] ?? 0 })),
-      prices: real?.prices ?? makePriceSeries(price, change, index),
-      concentration: years
-        ? Object.entries(years)
-            .map(([year, y]) => ({
-              year: Number(year),
-              value: Math.round((y.exporters[0]?.share ?? 0) + (y.exporters[1]?.share ?? 0)),
-            }))
-            .sort((a, b) => a.year - b.year)
-        : Array.from({ length: 10 }, (_, i) => ({
-            year: 2015 + i,
-            value: Math.round((shares[0] ?? 0) + (shares[1] ?? 0) - 8 + i * 0.9),
-          })),
-      ...(years && lastFlows
-        ? {
-            byYear: Object.fromEntries(Object.entries(years).map(([y, v]) => [Number(y), v])),
-            flows: lastFlows.flows,
-          }
-        : {}),
-    };
-  },
-);
+function buildCommodities(prices: PricesFile, flows: FlowsFile): Commodity[] {
+  return seeds.map(
+    (
+      [id, name, icon, risk, seedChange, seedPrice, components, exp, shares, imp, importShares],
+      index,
+    ) => {
+      const real = realPrices(prices, id);
+      const price = real?.price ?? seedPrice;
+      const change = real?.change ?? seedChange;
+      const years = flows.meta ? flows.commodities[id]?.years : undefined;
+      const lastFlows = years && flows.meta ? years[String(flows.meta.lastYear)] : undefined;
+      const toShares = (list: YearFlows["exporters"]) =>
+        list.slice(0, 8).map((p) => ({ code: p.code, share: p.share }));
+      return {
+        id,
+        name,
+        icon,
+        risk,
+        change,
+        price,
+        unit: "USD / tonne",
+        components,
+        exporters: lastFlows
+          ? toShares(lastFlows.exporters)
+          : exp.map((code, i) => ({ code, share: shares[i] ?? 0 })),
+        importers: lastFlows
+          ? toShares(lastFlows.importers)
+          : imp.map((code, i) => ({ code, share: importShares[i] ?? 0 })),
+        prices: real?.prices ?? makePriceSeries(price, change, index),
+        concentration: years
+          ? Object.entries(years)
+              .map(([year, y]) => ({
+                year: Number(year),
+                value: Math.round((y.exporters[0]?.share ?? 0) + (y.exporters[1]?.share ?? 0)),
+              }))
+              .sort((a, b) => a.year - b.year)
+          : Array.from({ length: 10 }, (_, i) => ({
+              year: 2015 + i,
+              value: Math.round((shares[0] ?? 0) + (shares[1] ?? 0) - 8 + i * 0.9),
+            })),
+        ...(years && lastFlows
+          ? {
+              byYear: Object.fromEntries(Object.entries(years).map(([y, v]) => [Number(y), v])),
+              flows: lastFlows.flows,
+            }
+          : {}),
+      };
+    },
+  );
+}
 export type Severity = "Élevée" | "Modérée" | "Faible";
 export type Alert = {
   id: string;
@@ -443,4 +440,44 @@ export function tradeValue(
     share: Math.round(share * (1 + (year - 2024) * 0.008) * 10) / 10,
     value: share * commodity.price * 720 * (0.7 + (year - 2015) * 0.033),
   };
+}
+
+export type Dataset = {
+  commodities: Commodity[];
+  countries: Country[];
+  alerts: Alert[];
+  /** Source des prix réels, ou null si les prix sont illustratifs. */
+  priceMeta: PricesFile["meta"];
+  /** Source des flux réels, ou null si les flux sont illustratifs. */
+  flowsMeta: FlowsFile["meta"];
+};
+
+/** Construit le jeu de données complet à partir des prix et flux fournis (embarqués ou reçus de l'API). */
+export function buildDataset({ prices, flows }: { prices: PricesFile; flows: FlowsFile }): Dataset {
+  return {
+    commodities: buildCommodities(prices, flows),
+    countries: buildCountries(flows),
+    alerts,
+    priceMeta: prices.meta,
+    flowsMeta: flows.meta,
+  };
+}
+
+/** Jeu embarqué dans l'application : repli quand l'API est indisponible, et base des tests. */
+export const bundledDataset: Dataset = buildDataset({
+  prices: generatedPrices as unknown as PricesFile,
+  flows: generatedFlows as unknown as FlowsFile,
+});
+
+// Jeu courant. Ces exports sont des « live bindings » ESM : setDataset() les remplace, et tout module
+// qui les lit après coup voit le nouveau jeu. L'API le positionne avant le rendu (voir src/lib/api.ts).
+export let commodities = bundledDataset.commodities;
+export let countries = bundledDataset.countries;
+export let priceMeta = bundledDataset.priceMeta;
+export let flowsMeta = bundledDataset.flowsMeta;
+export function setDataset(d: Dataset) {
+  commodities = d.commodities;
+  countries = d.countries;
+  priceMeta = d.priceMeta;
+  flowsMeta = d.flowsMeta;
 }

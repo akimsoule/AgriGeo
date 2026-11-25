@@ -1,17 +1,26 @@
 import { QueryClient } from "@tanstack/react-query";
-import { createRouter, rootRouteId } from "@tanstack/react-router";
+import { matchRoutes } from "react-router";
 import { describe, expect, it } from "vitest";
 
-import { routeTree } from "@/routeTree.gen";
+import { appRoutes } from "@/app/routes";
 
-// Match routes without running loaders or rendering: loaders may need a server or
-// network the test run lacks, and jsdom never loads the stylesheets React waits on.
+// On teste uniquement la correspondance des routes : sans exécuter les loaders ni rendre de page.
 describe("App routing", () => {
-  it("matches a page for / instead of falling back to not found", () => {
-    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+  const routes = appRoutes(new QueryClient());
+  const leaf = (path: string) => matchRoutes(routes, path)?.at(-1)?.route;
 
-    const matches = router.matchRoutes("/");
+  it.each(["/", "/flux", "/risques", "/matiere/cacao", "/pays/CI"])("matches %s", (path) => {
+    const route = leaf(path);
+    expect(route).toBeDefined();
+    expect(route?.path).not.toBe("*");
+  });
 
-    expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
+  it("falls back to the not-found page for unknown paths", () => {
+    expect(leaf("/inconnu")?.path).toBe("*");
+  });
+
+  it("exposes route params for commodities and countries", () => {
+    expect(matchRoutes(routes, "/matiere/cacao")?.at(-1)?.params).toEqual({ id: "cacao" });
+    expect(matchRoutes(routes, "/pays/CI")?.at(-1)?.params).toEqual({ code: "CI" });
   });
 });

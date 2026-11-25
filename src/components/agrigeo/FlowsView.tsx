@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { ArrowDownLeft, ArrowRight, ArrowUpRight, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -79,7 +79,7 @@ export function FlowsView() {
           </p>
         </div>
         <Button asChild variant="ghost">
-          <Link to="/matiere/$id" params={{ id }}>
+          <Link to={`/matiere/${id}`}>
             Voir l’analyse
             <ArrowRight />
           </Link>
@@ -106,7 +106,7 @@ export function FlowsView() {
                   <tr key={s.code}>
                     <td className="text-muted-foreground">{String(i + 1).padStart(2, "0")}</td>
                     <td>
-                      <Link className="country-name" to="/pays/$code" params={{ code: s.code }}>
+                      <Link className="country-name" to={`/pays/${s.code}`}>
                         {c?.flag} {c?.name}
                         <ArrowUpRight className="size-3 text-muted-foreground" />
                       </Link>

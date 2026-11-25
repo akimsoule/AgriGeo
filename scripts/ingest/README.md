@@ -14,7 +14,8 @@ Tant que ce fichier a `"meta": null`, l'app reste sur les prix illustratifs.
 
 - Le lien du fichier change chaque mois : le script le relit sur la page de la Banque mondiale.
 - Si une série est renommée, le script s'arrête et liste les noms disponibles (voir `SERIES_MAP`).
-- Mise à jour automatique : `.github/workflows/update-prices.yml` (le 5 de chaque mois, ouvre une PR).
+- Mise à jour en production : la fonction Netlify `update-prices` (le 5 de chaque mois) publie les prix dans Netlify Blobs, sans redéploiement.
+- `.github/workflows/update-prices.yml` ouvre en plus une PR mensuelle qui met à jour le jeu **embarqué** (repli quand le stockage est vide).
 - `fixtures/pink-sheet-sample.xlsx` est un faux classeur (valeurs inventées) pour tester le parseur hors ligne.
 
 Reste illustratif : flux et parts d'export/import, scores de risque, alertes, concentration.

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import {
   ArrowUpRight,
   BarChart3,
@@ -29,7 +29,7 @@ import { commodities, countries, flowsMeta, priceMeta } from "@/data/agrigeo";
 const formatMonth = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", { month: "short", year: "numeric", timeZone: "UTC" });
 
-const provenance = (() => {
+const getProvenance = () => {
   const real = [
     priceMeta
       ? `Prix : Banque mondiale, Pink Sheet (jusqu’à ${formatMonth(priceMeta.lastMonth)})`
@@ -48,7 +48,7 @@ const provenance = (() => {
     "alertes",
   ].filter(Boolean);
   return `${real.join(" · ")}. Données illustratives : ${illustrative.join(", ")}.`;
-})();
+};
 import { CommodityIcon } from "./common";
 const nav = [
   { to: "/", label: "Vue d’ensemble", icon: LayoutDashboard },
@@ -56,7 +56,7 @@ const nav = [
   { to: "/risques", label: "Prix et risques", icon: BarChart3 },
 ] as const;
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const path = useLocation({ select: (l) => l.pathname });
+  const path = useLocation().pathname;
   const navigate = useNavigate();
   const [search, setSearch] = useState(false);
   const [mobile, setMobile] = useState(false);
@@ -134,7 +134,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 className={`commodity-nav-item ${path === `/matiere/${c.id}` ? "commodity-nav-active" : ""}`}
                 key={c.id}
               >
-                <Link to="/matiere/$id" params={{ id: c.id }}>
+                <Link to={`/matiere/${c.id}`}>
                   <CommodityIcon icon={c.icon} />
                   <span>{c.name}</span>
                   <span
@@ -200,7 +200,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="main-content">{children}</main>
         <footer className="app-footer">
-          <span>{provenance}</span>
+          <span>{getProvenance()}</span>
           <span>AgriGeo © 2024</span>
         </footer>
       </div>
@@ -219,7 +219,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     key={c.id}
                     onSelect={() => {
                       setSearch(false);
-                      void navigate({ to: "/matiere/$id", params: { id: c.id } });
+                      void navigate(`/matiere/${c.id}`);
                     }}
                   >
                     <CommodityIcon icon={c.icon} />
@@ -235,7 +235,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     key={c.code}
                     onSelect={() => {
                       setSearch(false);
-                      void navigate({ to: "/pays/$code", params: { code: c.code } });
+                      void navigate(`/pays/${c.code}`);
                     }}
                   >
                     <span>{c.flag}</span>

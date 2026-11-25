@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseMonthlySheet, toUsdPerTonne } from "../../scripts/ingest/prices";
+import { parseMonthlySheet, toUsdPerTonne } from "../../shared/pink-sheet";
 
 const names = [
   "",
