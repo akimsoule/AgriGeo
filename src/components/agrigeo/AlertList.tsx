@@ -1,8 +1,146 @@
-import { useState } from 'react';
-import { Link } from '@tanstack/react-router';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { alerts, countries, findCommodity, findCountry, formatDate, type Alert } from '@/data/agrigeo';
-import { Choice, EmptyState, RiskBadge } from './common';
-export function AlertList({items=alerts,filterable=false}:{items?:Alert[];filterable?:boolean}){const [type,setType]=useState('all');const [severity,setSeverity]=useState('all');const [country,setCountry]=useState('all');const [open,setOpen]=useState<string|null>(null);const filtered=items.filter(a=>(type==='all'||a.type===type)&&(severity==='all'||a.severity===severity)&&(country==='all'||a.code===country));return <>{filterable&&<div className="filter-row mb-5"><Choice label="Type d’alerte" value={type} onChange={setType} options={[{value:'all',label:'Tous les événements'},...['Sécheresse','Conflit','Restriction d’export','Embargo'].map(v=>({value:v,label:v}))]}/><Choice label="Gravité" value={severity} onChange={setSeverity} options={[{value:'all',label:'Toutes les gravités'},...['Élevée','Modérée','Faible'].map(v=>({value:v,label:v}))]}/><Choice label="Pays" value={country} onChange={setCountry} options={[{value:'all',label:'Tous les pays'},...countries.filter(c=>items.some(a=>a.code===c.code)).map(c=>({value:c.code,label:c.name}))]}/></div>}{!filtered.length?<EmptyState/>:<div className="table-scroll"><table className="data-table alert-table"><thead><tr><th>Date</th><th>Pays / événement</th><th>Matières concernées</th><th>Type</th><th>Gravité</th><th><span className="sr-only">Détail</span></th></tr></thead><tbody>{filtered.map(a=><AlertRow key={a.id} alert={a} open={open===a.id} toggle={()=>setOpen(open===a.id?null:a.id)}/>)}</tbody></table></div>}</>;}
-function AlertRow({alert:a,open,toggle}:{alert:Alert;open:boolean;toggle:()=>void}){const country=findCountry(a.code);return <><tr><td className="date-cell">{formatDate(a.date)}</td><td><Link to="/pays/$code" params={{code:a.code}} className="country-name"><span>{country?.flag}</span>{country?.name}</Link><div className="event-title">{a.title}</div></td><td><div className="flex flex-wrap gap-1.5">{a.commodities.map(id=><Link className="commodity-tag" to="/matiere/$id" params={{id}} key={id}>{findCommodity(id)?.name}</Link>)}</div></td><td className="text-muted-foreground">{a.type}</td><td><RiskBadge severity={a.severity}/></td><td><Button size="icon" variant="ghost" aria-label={`Détail : ${a.title}`} onClick={toggle}>{open?<ChevronUp/>:<ChevronDown/>}</Button></td></tr>{open&&<tr className="alert-detail"><td colSpan={6}>{a.detail}<span className="block mt-2 text-xs text-muted-foreground">Événement illustratif · Scénario de simulation</span></td></tr>}</>;}
+import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  alerts,
+  countries,
+  findCommodity,
+  findCountry,
+  formatDate,
+  type Alert,
+} from "@/data/agrigeo";
+import { Choice, EmptyState, RiskBadge } from "./common";
+export function AlertList({
+  items = alerts,
+  filterable = false,
+}: {
+  items?: Alert[];
+  filterable?: boolean;
+}) {
+  const [type, setType] = useState("all");
+  const [severity, setSeverity] = useState("all");
+  const [country, setCountry] = useState("all");
+  const [open, setOpen] = useState<string | null>(null);
+  const filtered = items.filter(
+    (a) =>
+      (type === "all" || a.type === type) &&
+      (severity === "all" || a.severity === severity) &&
+      (country === "all" || a.code === country),
+  );
+  return (
+    <>
+      {filterable && (
+        <div className="filter-row mb-5">
+          <Choice
+            label="Type d’alerte"
+            value={type}
+            onChange={setType}
+            options={[
+              { value: "all", label: "Tous les événements" },
+              ...["Sécheresse", "Conflit", "Restriction d’export", "Embargo"].map((v) => ({
+                value: v,
+                label: v,
+              })),
+            ]}
+          />
+          <Choice
+            label="Gravité"
+            value={severity}
+            onChange={setSeverity}
+            options={[
+              { value: "all", label: "Toutes les gravités" },
+              ...["Élevée", "Modérée", "Faible"].map((v) => ({ value: v, label: v })),
+            ]}
+          />
+          <Choice
+            label="Pays"
+            value={country}
+            onChange={setCountry}
+            options={[
+              { value: "all", label: "Tous les pays" },
+              ...countries
+                .filter((c) => items.some((a) => a.code === c.code))
+                .map((c) => ({ value: c.code, label: c.name })),
+            ]}
+          />
+        </div>
+      )}
+      {!filtered.length ? (
+        <EmptyState />
+      ) : (
+        <div className="table-scroll">
+          <table className="data-table alert-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Pays / événement</th>
+                <th>Matières concernées</th>
+                <th>Type</th>
+                <th>Gravité</th>
+                <th>
+                  <span className="sr-only">Détail</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((a) => (
+                <AlertRow
+                  key={a.id}
+                  alert={a}
+                  open={open === a.id}
+                  toggle={() => setOpen(open === a.id ? null : a.id)}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  );
+}
+function AlertRow({ alert: a, open, toggle }: { alert: Alert; open: boolean; toggle: () => void }) {
+  const country = findCountry(a.code);
+  return (
+    <>
+      <tr>
+        <td className="date-cell">{formatDate(a.date)}</td>
+        <td>
+          <Link to="/pays/$code" params={{ code: a.code }} className="country-name">
+            <span>{country?.flag}</span>
+            {country?.name}
+          </Link>
+          <div className="event-title">{a.title}</div>
+        </td>
+        <td>
+          <div className="flex flex-wrap gap-1.5">
+            {a.commodities.map((id) => (
+              <Link className="commodity-tag" to="/matiere/$id" params={{ id }} key={id}>
+                {findCommodity(id)?.name}
+              </Link>
+            ))}
+          </div>
+        </td>
+        <td className="text-muted-foreground">{a.type}</td>
+        <td>
+          <RiskBadge severity={a.severity} />
+        </td>
+        <td>
+          <Button size="icon" variant="ghost" aria-label={`Détail : ${a.title}`} onClick={toggle}>
+            {open ? <ChevronUp /> : <ChevronDown />}
+          </Button>
+        </td>
+      </tr>
+      {open && (
+        <tr className="alert-detail">
+          <td colSpan={6}>
+            {a.detail}
+            <span className="block mt-2 text-xs text-muted-foreground">
+              Événement illustratif · Scénario de simulation
+            </span>
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}

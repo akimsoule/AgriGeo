@@ -84,10 +84,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "AgriGeo — Géopolitique alimentaire" },
-      { name: "description", content: "Observatoire des dépendances alimentaires et des matières premières." },
+      {
+        name: "description",
+        content: "Observatoire des dépendances alimentaires et des matières premières.",
+      },
       { name: "author", content: "AgriGeo" },
       { property: "og:title", content: "AgriGeo — Géopolitique alimentaire" },
-      { property: "og:description", content: "Observatoire des dépendances alimentaires et des matières premières." },
+      {
+        property: "og:description",
+        content: "Observatoire des dépendances alimentaires et des matières premières.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -97,7 +103,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -126,7 +135,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <AppShell><Outlet /></AppShell>
+      <AppShell>
+        <Outlet />
+      </AppShell>
     </QueryClientProvider>
   );
 }
