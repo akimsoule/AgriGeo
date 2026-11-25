@@ -57,15 +57,25 @@ const baseCountries: Country[] = [
   vulnerability: Number(vulnerability),
 }));
 
+/** Pays ajoutés sans indice de vulnérabilité (non calculé : affiché « n.d. »). */
+const benin: Country = {
+  code: "BJ",
+  numeric: "204",
+  name: "Bénin",
+  flag: "🇧🇯",
+  coordinates: [2.3, 9.3],
+  vulnerability: null,
+};
+const curatedCountries: Country[] = [...baseCountries, benin];
 const flagOf = (iso2: string) =>
   String.fromCodePoint(...[...iso2].map((ch) => 127397 + ch.charCodeAt(0)));
 /** Pays curatés + pays rencontrés dans les flux réels (nom, drapeau et centre calculés). */
 function buildCountries(flows: FlowsFile): Country[] {
   return [
-    ...baseCountries,
+    ...curatedCountries,
     ...(flows.meta
       ? Object.entries(flows.countries)
-          .filter(([code]) => !baseCountries.some((c) => c.code === code))
+          .filter(([code]) => !curatedCountries.some((c) => c.code === code))
           .map(([code, c]) => ({
             code,
             numeric: c.numeric,
@@ -226,6 +236,19 @@ const seeds: Seed[] = [
     [52, 29, 5, 3, 2, 2, 1, 1],
     ["CN", "NL", "DE", "ES", "TH", "EG", "JP", "ID"],
     [61, 5, 4, 4, 3, 3, 2, 2],
+  ],
+  [
+    "coton",
+    "Coton",
+    "flower",
+    61,
+    -4.2,
+    1710,
+    [58, 52, 66, 61],
+    ["US", "BR", "AU", "IN", "BJ", "CI", "CM", "EG"],
+    [30, 22, 12, 6, 5, 3, 2, 2],
+    ["VN", "BD", "TR", "PK", "CN", "ID", "TH", "IN"],
+    [18, 16, 11, 9, 8, 6, 4, 3],
   ],
 ];
 export function makePriceSeries(price: number, change: number, phase: number) {

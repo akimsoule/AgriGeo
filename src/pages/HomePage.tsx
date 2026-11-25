@@ -6,7 +6,7 @@ export function HomePage() {
     <>
       <PageMeta
         title="AgriGeo — Vue d’ensemble"
-        description="Explorez les dépendances alimentaires mondiales, les neuf matières premières et les alertes géopolitiques."
+        description="Explorez les dépendances alimentaires mondiales, les matières premières suivies et les alertes géopolitiques."
       />
       <Dashboard />
     </>

@@ -9,7 +9,7 @@ export const PAGE_URL = "https://www.worldbank.org/en/research/commodity-markets
 const FIRST_YEAR = 2000;
 
 /** Séries du Pink Sheet retenues pour chaque matière de l'app (premier nom trouvé gagne). */
-export const SERIES_MAP: Record<string, { match: RegExp; label: string }> = {
+export const SERIES_MAP: Record<string, { match: RegExp; label: string; optional?: boolean }> = {
   cacao: { match: /^cocoa\b/i, label: "Cocoa" },
   cafe: { match: /^coffee,?\s*arabica/i, label: "Coffee, Arabica" },
   sucre: { match: /^sugar,?\s*world/i, label: "Sugar, world" },
@@ -19,6 +19,8 @@ export const SERIES_MAP: Record<string, { match: RegExp; label: string }> = {
   mais: { match: /^maize/i, label: "Maize" },
   riz: { match: /^rice,?\s*thai\s*5/i, label: "Rice, Thai 5%" },
   soja: { match: /^soybeans\b/i, label: "Soybeans" },
+  // Optionnelle : si le nom change dans le classeur, le coton garde son prix illustratif sans bloquer le reste.
+  coton: { match: /^cotton/i, label: "Cotton, A Index", optional: true },
 };
 
 type Cell = string | number | boolean | Date | null | undefined;
@@ -63,10 +65,11 @@ export function parseMonthlySheet(rows: Cell[][]): PricesFile["series"] {
   const result: PricesFile["series"] = {};
   const missing: string[] = [];
 
-  for (const [id, { match, label }] of Object.entries(SERIES_MAP)) {
+  for (const [id, { match, label, optional }] of Object.entries(SERIES_MAP)) {
     const col = names.findIndex((n, i) => i > 0 && match.test(n));
     if (col < 0) {
-      missing.push(`${id} (${label})`);
+      if (optional) console.warn(`Série optionnelle introuvable, ignorée : ${id} (${label})`);
+      else missing.push(`${id} (${label})`);
       continue;
     }
     const originalUnit = units[col] ?? "";
@@ -160,7 +163,9 @@ export async function fetchPricesFile(url?: string): Promise<PricesFile> {
 export function isPricesFile(value: unknown): value is PricesFile {
   const v = value as Partial<PricesFile> | null;
   if (!v?.meta || typeof v.meta.lastMonth !== "string" || !v.series) return false;
-  const ids = Object.keys(SERIES_MAP);
+  const ids = Object.entries(SERIES_MAP)
+    .filter(([, m]) => !m.optional)
+    .map(([id]) => id);
   return ids.every((id) => {
     const points = v.series?.[id]?.points;
     return Array.isArray(points) && points.length >= 60 && typeof points[0]?.value === "number";

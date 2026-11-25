@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { alerts, commodities, countries, flowsMeta, makePriceSeries, priceMeta, tradeValue } from '@/data/agrigeo';
 
 describe('AgriGeo illustrative dataset',()=>{
-  it('tracks the nine requested commodities',()=>{
-    expect(commodities.map(c=>c.name)).toEqual(['Cacao','Café','Sucre','Huile de palme','Huile de tournesol','Blé','Maïs','Riz','Soja']);
+  it('tracks the ten requested commodities',()=>{
+    expect(commodities.map(c=>c.name)).toEqual(['Cacao','Café','Sucre','Huile de palme','Huile de tournesol','Blé','Maïs','Riz','Soja','Coton']);
   });
   it('has eight exporters and eight importers per commodity with valid shares',()=>{
     for(const c of commodities){
@@ -43,5 +43,11 @@ describe('AgriGeo illustrative dataset',()=>{
       expect(v.share).toBe(top.share);expect(v.value).toBeGreaterThan(0);
       for(const s of [...c.exporters,...c.importers])expect(countries.some(p=>p.code===s.code)).toBe(true);
     }
+  });
+  it('includes Benin and cotton, with Benin among the cotton exporters',()=>{
+    expect(countries.find(c=>c.code==='BJ')?.name).toBe('Bénin');
+    const coton=commodities.find(c=>c.id==='coton');
+    if(!coton)throw new Error('Missing cotton');
+    expect(coton.exporters.some(e=>e.code==='BJ')).toBe(true);
   });
 });

@@ -24,7 +24,7 @@ describe("/api/dashboard", () => {
   it("serves the bundled dataset when nothing is stored", async () => {
     const { dataset, pricesFrom } = await loadDashboard(async () => null);
     expect(pricesFrom).toBe("bundle");
-    expect(dataset.commodities).toHaveLength(9);
+    expect(dataset.commodities).toHaveLength(10);
   });
 
   it("ignores malformed stored prices", async () => {
@@ -67,7 +67,7 @@ describe("/api/dashboard", () => {
     expect(res.headers.get("content-type")).toContain("application/json");
     expect(res.headers.get("cache-control")).toContain("max-age");
     const body = (await res.json()) as { commodities: unknown[]; countries: unknown[] };
-    expect(body.commodities).toHaveLength(9);
+    expect(body.commodities).toHaveLength(10);
     expect(body.countries.length).toBeGreaterThan(0);
   });
 });

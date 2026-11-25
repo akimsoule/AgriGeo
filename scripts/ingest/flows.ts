@@ -32,6 +32,7 @@ export const HS_CODES: Record<string, string[]> = {
   mais: ["1005"],
   riz: ["1006"],
   soja: ["1201"],
+  coton: ["5201"], // coton non cardé ni peigné
 };
 
 type Acc = {

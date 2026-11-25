@@ -12,18 +12,20 @@ const names = [
   "Maize",
   "Rice, Thai 5%",
   "Soybeans",
+  "Cotton, A Index",
 ];
 const units = [
   "",
-  "($/kg)",
-  "($/kg)",
-  "($/kg)",
-  "($/mt)",
-  "($/mt)",
-  "($/mt)",
-  "($/mt)",
-  "($/mt)",
-  "($/mt)",
+  "($/kg)", // cacao
+  "($/kg)", // café
+  "($/kg)", // sucre
+  "($/mt)", // palme
+  "($/mt)", // tournesol
+  "($/mt)", // blé
+  "($/mt)", // maïs
+  "($/mt)", // riz
+  "($/mt)", // soja
+  "($/kg)", // coton
 ];
 
 function sheet(months: number, missingCol?: number) {
@@ -44,7 +46,7 @@ describe("Pink Sheet parser", () => {
     expect(toUsdPerTonne(800, "($/mt)")).toBe(800);
     expect(() => toUsdPerTonne(1, "($/bbl)")).toThrow();
   });
-  it("extracts the nine series in USD per tonne", () => {
+  it("extracts the ten series in USD per tonne", () => {
     const series = parseMonthlySheet(sheet(72));
     expect(Object.keys(series)).toEqual([
       "cacao",
@@ -56,6 +58,7 @@ describe("Pink Sheet parser", () => {
       "mais",
       "riz",
       "soja",
+      "coton",
     ]);
     expect(series["cacao"]!.points[0]).toEqual({ date: "2000-01-01", value: 1000 });
     expect(series["soja"]!.points[71]!.date).toBe("2005-12-01");
@@ -67,5 +70,12 @@ describe("Pink Sheet parser", () => {
     const rows = sheet(72);
     rows[2] = rows[2]!.map((n) => (n === "Maize" ? "Corn" : n));
     expect(() => parseMonthlySheet(rows)).toThrow(/Noms disponibles/);
+  });
+  it("ignores the optional cotton series when it is missing, but still requires the others", () => {
+    const rows = sheet(72);
+    rows[2] = rows[2]!.map((n) => (n === "Cotton, A Index" ? "Fibre X" : n));
+    const series = parseMonthlySheet(rows);
+    expect(series["coton"]).toBeUndefined();
+    expect(Object.keys(series)).toHaveLength(9);
   });
 });

@@ -33,9 +33,9 @@ describe("BACI ingestion", () => {
     expect(y.flows[0]).toEqual({ from: "CI", to: "NL", value: 600_000 });
     expect(y.exporters.reduce((s, p) => s + p.share, 0)).toBeCloseTo(100, 5);
   });
-  it("covers the nine commodities with distinct HS codes", () => {
+  it("covers the ten commodities with distinct HS codes", () => {
     const codes = Object.values(HS_CODES).flat();
-    expect(Object.keys(HS_CODES)).toHaveLength(9);
+    expect(Object.keys(HS_CODES)).toHaveLength(10);
     expect(new Set(codes).size).toBe(codes.length);
   });
 });

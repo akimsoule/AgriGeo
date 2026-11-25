@@ -57,7 +57,7 @@ export function Dashboard() {
       <div className="kpi-grid">
         <KpiCard
           label="Matières suivies"
-          value="9"
+          value={String(data.commodities.length)}
           icon={Layers3}
           detail="Les grandes filières alimentaires"
         >

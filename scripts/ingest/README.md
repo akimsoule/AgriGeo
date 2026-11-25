@@ -8,8 +8,8 @@ npm run ingest:prices -- --url <lien.xlsx>  # lien explicite (« Monthly prices 
 npm run ingest:prices -- --file ./x.xlsx    # fichier local
 ```
 
-Écrit `src/data/generated/prices.json` : prix mensuels nominaux convertis en USD / tonne pour les 9 matières
-(cacao, café arabica, sucre monde, huile de palme, huile de tournesol, blé US HRW, maïs, riz Thai 5 %, soja).
+Écrit `src/data/generated/prices.json` : prix mensuels nominaux convertis en USD / tonne pour les 10 matières
+(cacao, café arabica, sucre monde, huile de palme, huile de tournesol, blé US HRW, maïs, riz Thai 5 %, soja, coton A Index).
 Tant que ce fichier a `"meta": null`, l'app reste sur les prix illustratifs.
 
 - Le lien du fichier change chaque mois : le script le relit sur la page de la Banque mondiale.
@@ -35,7 +35,7 @@ Reste illustratif : flux et parts d'export/import, scores de risque, alertes, co
 `"meta": null`, l'app reste sur les flux illustratifs.
 
 Codes HS retenus (4 chiffres, voir `HS_CODES`) : cacao 1801 (fèves), café 0901, sucre 1701, huile de palme 1511,
-huile de tournesol 1512 (inclut carthame et coton), blé 1001, maïs 1005, riz 1006, soja 1201.
+huile de tournesol 1512 (inclut carthame et coton), blé 1001, maïs 1005, riz 1006, soja 1201, coton 5201.
 
 Limites à connaître : les parts sont en **valeur** ; les réexportations (ex. cacao via les Pays-Bas) comptent
 comme exportations du pays réexportateur ; les centres de pays (flèches de la carte) sont des centroïdes
